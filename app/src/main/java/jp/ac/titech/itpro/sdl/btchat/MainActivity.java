@@ -56,6 +56,7 @@ public class MainActivity extends AppCompatActivity {
     private ListView chatLogView;
     private EditText inputText;
     private Button sendButton;
+    private Button bellButton;
 
     private ArrayList<ChatMessage> chatLog;
     private ArrayAdapter<ChatMessage> chatLogAdapter;
@@ -104,6 +105,7 @@ public class MainActivity extends AppCompatActivity {
         connectionProgress = findViewById(R.id.connection_progress);
         inputText = findViewById(R.id.input_text);
         sendButton = findViewById(R.id.send_button);
+        bellButton = findViewById(R.id.bell_button);
         chatLogView = findViewById(R.id.chat_log_view);
         chatLogAdapter = new ArrayAdapter<ChatMessage>(this, 0, chatLog) {
             @Override
@@ -290,6 +292,15 @@ public class MainActivity extends AppCompatActivity {
             chatLogAdapter.notifyDataSetChanged();
             chatLogView.smoothScrollToPosition(chatLog.size());
             inputText.getEditableText().clear();
+        }
+    }
+
+    public void onClickBellButton(View v) {
+        Log.d(TAG, "onClickBellButton");
+        if (commThread != null) {
+            long time = System.currentTimeMillis();
+            ChatMessage message = new ChatMessage(message_seq, time, "", devName);
+            commThread.send(message);
         }
     }
 
@@ -664,36 +675,46 @@ public class MainActivity extends AppCompatActivity {
             statusText.setText(R.string.conn_status_text_disconnected);
             inputText.setEnabled(false);
             sendButton.setEnabled(false);
+            bellButton.setEnabled(false);
             break;
         case Disconnected:
             statusText.setText(R.string.conn_status_text_disconnected);
             inputText.setEnabled(false);
             sendButton.setEnabled(false);
+            bellButton.setEnabled(false);
             break;
         case Connecting:
             statusText.setText(getString(R.string.conn_status_text_connecting_to, arg));
             inputText.setEnabled(false);
             sendButton.setEnabled(false);
+            bellButton.setEnabled(false);
             break;
         case Connected:
             statusText.setText(getString(R.string.conn_status_text_connected_to, arg));
             inputText.setEnabled(true);
             sendButton.setEnabled(true);
+            bellButton.setEnabled(true);
             soundPool.play(sound_connected, 1.0f, 1.0f, 0, 0, 1);
             break;
         case Waiting:
             statusText.setText(R.string.conn_status_text_waiting_for_connection);
             inputText.setEnabled(false);
             sendButton.setEnabled(false);
+            bellButton.setEnabled(false);
             break;
         }
         invalidateOptionsMenu();
     }
 
     private void showMessage(ChatMessage message) {
-        chatLogAdapter.add(message);
-        chatLogAdapter.notifyDataSetChanged();
-        chatLogView.smoothScrollToPosition(chatLogAdapter.getCount());
+        if(message.content.length() == 0) {
+            soundPool.play(sound_connected, 1.0f, 1.0f, 0, 0, 1);
+        }
+        else {
+            chatLogAdapter.add(message);
+            chatLogAdapter.notifyDataSetChanged();
+            chatLogView.smoothScrollToPosition(chatLogAdapter.getCount());
+        }
     }
 
     private void disconnect() {

@@ -51,5 +51,11 @@
             android:layout_height="wrap_content"
             android:onClick="onClickSendButton"
             android:text="@string/send_button_label"/>
+        <Button
+            android:id="@+id/bell_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:onClick="onClickBellButton"
+            android:text="@string/bell_button_label"/>
     </LinearLayout>
 </LinearLayout>
